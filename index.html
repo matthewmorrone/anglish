@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Anglish</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="shortcut icon" type="image/x-icon" href="http://www.matthewmorrone.com/psi.ico" />
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="https://code.jquery.com/ui/jquery-ui-git.css" />
+	<script>
+		var log = console.log.bind(console)
+	</script>
+	<style>
+	* {
+		margin: 0px;
+		padding: 0px;
+	}
+	body {
+		width: 100%;
+		height: 100%;
+	}
+	table, th, td {
+		/*border-collapse: collapse;*/
+	}
+	.toc {
+		display: none;
+		margin: 0 auto;
+		text-align: center;
+		background: transparent;
+		width: 50%;
+		vertical-align: top;
+		border: 1px solid #cccccc;
+	}
+	.toc .title {
+		background: transparent;
+		margin: 5px;
+		border: 1px solid #cccccc;
+		padding: 5px;
+		font-size: 120%;
+	}
+	.page, .page tr {
+		width: 100%;
+		background: transparent;
+		padding: 5px;
+		border: 1px solid #cccccc;
+		margin: 4px;
+	}
+	.page td:first-child {
+		font-weight: bold;
+		text-align:right;
+		width:25%;
+		vertical-align:top;
+	}
+	.page td:nth-child(2) {
+		text-align: center;
+		width:10%;
+		vertical-align:top;
+		font-style: italic;
+	}
+	.page td:nth-child(3) {
+		width: 65%;
+	}
+	.page td div {
+		display: inline;
+		/*white-space: nowrap;*/
+		/*overflow-x: hidden;*/
+	}
+	tr:gt(10) {
+		display: none;
+	}
+	</style>
+	<script>
+	jQuery.fn.insertAt = function(index, element) {
+		var lastIndex = this.children().length;
+		if (index < 0) {
+			index = Math.max(0, lastIndex + 1 + index);
+		}
+		this.append(element);
+		if (index < lastIndex) {
+			this.children().eq(index).before(this.children().last());
+		}
+		return this;
+	}
+	function loadPage(handle, resolve, container=document.body, filter = x => x, map = x => x) {
+		$.post('/api/', {
+			mode: 'read',
+			handle: 'http://anglish.wikia.com/wiki/'+handle
+		}, function(d) {
+			$(container).append($(d).find('tr').filter(filter).each(map))
+			resolve()
+		}, 'html')
+	}
+
+	$(function() {
+		let promises = [], id
+		$('A B C D E F G H I K L M N O P Q R S T U V W Y'.split(' ')).each(function(i, page) {
+			promises.push(new Promise(function(resolve) {
+				let id = page
+				let handle = `Anglish_Slang_Wordbook/${id}`
+				loadPage(handle, resolve, "#all")
+			}))
+		})
+		$('A B C D E F G H IJ K L M N O P Q R S T UV W XYZ'.split(' ')).each(function(i, page) {
+			promises.push(new Promise(function(resolve) {
+				let id = page
+				let handle = `Anglish_wordbook/${id}`
+				loadPage(handle, resolve, '#all', function() {
+					return $(this).find('td').length > 1
+				})
+			}))
+		})
+		$('A B C D E F G H I J K L M N O P Q R S T U V W X Y Z'.split(' ')).each(function(i, page) {
+			promises.push(new Promise(function(resolve) {
+				let id = page, handle = `English_Wordbook/${id}`, $row, text, i, row
+				$.post('/api/', {
+					mode: 'read',
+					handle: 'http://anglish.wikia.com/wiki/'+handle
+				}, function(d) {
+					$('#all').append($(d).find('tr').filter(function() {
+						return !$(this).find('td').attr('rowspan') && !$(this).find('td').attr('style')
+					}).each(function() {
+						if ($(this).find('td:eq(2)').text().trim() === '-') {
+							$(this).find('td:eq(2)').text($(this).find('td:eq(2)').text().replace('-', '').trim())
+						}
+						if ($(this).find('td:eq(3)').text().trim() === '-') {
+							$(this).find('td:eq(3)').text($(this).find('td:eq(3)').text().replace('-', '').trim())
+						}
+						$(this).find('td:eq(2)').text($(this).find('td:eq(2)').text()+$(this).find('td:eq(3)').text())
+						$(this).find('td:eq(3)').remove()
+
+						$row = $(this)
+						$(this).children().each(function(i,td){$row.prepend(td)})
+
+						$(this).find('td:eq(0)').text($(this).find('td:eq(0)').text().trim()
+							.replace(/\(.+?\)/g, '')
+							.replace(/[,;]\s+/g, ',')
+							.replace(/\s+[,;]/g, ',')
+						)
+					}))
+					resolve()
+				}, 'html')
+			}))
+		})
+		$('A B C D E F G H I J K L M N O P Q R S Tþ U W Y'.split(' ')).each(function(i, page) {
+			promises.push(new Promise(function(resolve) {
+				let id = page
+				let handle = `Old_English_Wordbook/${id}`
+				$.post('/api/', {
+					mode: 'read',
+					handle: 'http://anglish.wikia.com/wiki/'+handle
+				}, function(d) {
+					$('#all').append($(d).find('tr').each(function() {
+						$(this).find('td:eq(1)').remove()
+					}))
+					resolve()
+				}, 'html')
+			}))
+		})
+		// $('A AA AB AC AD AE AF AG AH AI AK AL AM AN AP AQ AR AS AT AU AW AX AY B BA BE BI BL BO BR BU BY C CA CE CH CI CL CO CR CU CY D DA DE DI DO DR DU DW DY E EA EB EC ED EE EF EG EI EK EL EM EN ER ES ET EV EW EY F FA FE FI FL FN FO FR FU FY G GA GE GH GI GL GN GO GR GU H HA HE HI HO HR HU HY I IA IB IC ID IE IF IG IH IK IL IM IN IQ IR IS IT IV IW IY J JO JU K KE KI KN L LA LE LI LO LU LY M MA ME MI MO MU MY N NA NE NI NO NU O OA OF OL ON OO OP OR OT OU OV OW OX OY P PA PE PI PL PO PR PS PU Q R RA RE RH RI RO RU RY S SA SC SE SH SI SL SM SN SO SP ST SU SW SY T TA TE TH TI TO TR TU TW TY U UD UG UM UNA UNB UNC UND UNE UNF UNG UNH UNI UNK UNL UNM UNN UNO UNP UNQ UNR UNS UNT UNU UNW UNY UP US UT UV V W WA WE WH WI WL WO WR WU WY Y YA YE YF YG YH YI YK YL YO YT YU YW'.split(' ')).each(function(i, page) {
+		// 	promises.push(new Promise(function(resolve) {
+		// 		let id = page
+		// 		let handle = `List_of_Old_English_Words_in_the_OED/${id}`
+		// 		loadPage(handle, resolve)
+		// 	}))
+		// })
+
+		Promise.all(promises).then(function() {
+			let text, i, row
+			$('tr').each(function() {
+				if ($(this).find('td:eq(0)').text().includes(',')) {
+					text = $(this).find('td:eq(0)').text().split(',').map(a => a.trim())
+					for(i = 0; i < text.length; i++) {
+						row = $(this).clone()
+						row.find('td:eq(0)').text(text[i])
+						$(this).after(row)
+					}
+					$(this).remove()
+				}
+				if ($(this).find('td:eq(1)').text().includes('phr')) {
+					$(this).remove()
+				}
+				if ($(this).find('td:eq(1)').text().includes('pvb')) {
+					$(this).remove()
+				}
+			})
+			document.title = $('tr').length
+		})
+
+
+
+
+	})
+	</script>
+	</head>
+	<body>
+		<div id='pages'>
+
+			<!-- <table class='page' id='old'></table> -->
+			<table class='page' id='all'></table>
+			<!-- <table class='page' id='english'></table> -->
+			<!-- <table class='page' id='anglish'></table> -->
+			<!-- <table class='page' id='slang'></table> -->
+		</div>
+	</body>
+</html>

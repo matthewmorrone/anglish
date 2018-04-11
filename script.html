@@ -1,0 +1,47 @@
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+
+<script>
+$(function() {
+
+	let handles = [
+		"Craftspeak",
+		"Eldsay_English",
+		"Fading_of_Ormotes",
+		"Landblossoms",
+		"Latinisms",
+		"List_of_Deer",
+		"List_of_Gleecraftish_Words",
+		"List_of_Lores",
+		"List_of_Mootish_Words",
+		"List_of_Old_English_Words_in_the_OED",
+		"List_of_otherworldly_beings_and_words",
+		"List_of_Slaughters",
+		"List_of_Starmoots",
+		"Short_List_of_English_Byleid_Words",
+		"The_World_of_Worts",
+		"Sightly_Crafts",
+		"Swaycraft",
+		"Bird",
+		"Speechsteadlore",
+		"Fixing_Modern_English_Spelling_in_a_Germanic_Way",
+		"Latish_tung",
+	]
+
+	$(handles).each(function(i, handle) {
+		promises.push(new Promise(function(resolve) {
+			$.post('/api/', {
+				mode: 'read',
+				handle: 'http://anglish.wikia.com/wiki/'+handle
+			}, function(d) {
+				console.log(handle)
+				$(document.body).append($(d).find('#mw-content-text'))
+				resolve()
+			}, 'html')
+		}))
+	})
+
+	Promise.all(promises).then(function() {
+
+	})
+})
+</script>
