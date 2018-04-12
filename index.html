@@ -92,7 +92,7 @@ $(function() {
 					$(this).find('td:eq(3)').remove()
 
 					$row = $(this)
-					$(this).children().each(function(i,td){$row.prepend(td)})
+					$(this).children().each(function(i, td) {$row.prepend(td)})
 
 					$(this).find('td:eq(0)').text($(this).find('td:eq(0)').text().trim()
 						.replace(/\(.+?\)/g, '')
