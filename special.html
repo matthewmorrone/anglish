@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Anglish</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="shortcut icon" type="image/x-icon" href="http://www.matthewmorrone.com/psi.ico" />
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="https://code.jquery.com/ui/jquery-ui-git.css" />
+	<script>
+		var log = console.log.bind(console)
+	</script>
+	<style>
+	* {
+		margin: 0px;
+		padding: 0px;
+	}
+	body {
+		width: 100%;
+		height: 100%;
+	}
+	table, th, td {
+		/*border-collapse: collapse;*/
+	}
+	.toc {
+		display: none;
+		margin: 0 auto;
+		text-align: center;
+		background: transparent;
+		width: 50%;
+		vertical-align: top;
+		border: 1px solid #cccccc;
+	}
+	.toc .title {
+		background: transparent;
+		margin: 5px;
+		border: 1px solid #cccccc;
+		padding: 5px;
+		font-size: 120%;
+	}
+	.page, .page tr {
+		width: 100%;
+		background: transparent;
+		padding: 5px;
+		border: 1px solid #cccccc;
+		margin: 4px;
+	}
+	.page td:first-child {
+		font-weight: bold;
+		text-align:right;
+		width:25%;
+		vertical-align:top;
+	}
+	.page td:nth-child(2) {
+		text-align: center;
+		width:10%;
+		vertical-align:top;
+		font-style: italic;
+	}
+	.page td:nth-child(3) {
+		width: 65%;
+	}
+	.page td div {
+		display: inline;
+		/*white-space: nowrap;*/
+		/*overflow-x: hidden;*/
+	}
+	</style>
+	<script>
+	jQuery.fn.insertAt = function(index, element) {
+		var lastIndex = this.children().length;
+		if (index < 0) {
+			index = Math.max(0, lastIndex + 1 + index);
+		}
+		this.append(element);
+		if (index < lastIndex) {
+			this.children().eq(index).before(this.children().last());
+		}
+		return this;
+	}
+
+
+	$(function() {
+		let promises = [], handles = [
+			"Craftspeak",
+			"Eldsay_English",
+			"Fading_of_Ormotes",
+			"Landblossoms",
+			"Latinisms",
+			"List_of_Deer",
+			"List_of_Gleecraftish_Words",
+			"List_of_Lores",
+			"List_of_Mootish_Words",
+			"List_of_Old_English_Words_in_the_OED",
+			"List_of_otherworldly_beings_and_words",
+			"List_of_Slaughters",
+			"List_of_Starmoots",
+			"Short_List_of_English_Byleid_Words",
+			"The_World_of_Worts",
+			"Sightly_Crafts",
+			"Swaycraft",
+			"Bird",
+			"Speechsteadlore",
+			"Fixing_Modern_English_Spelling_in_a_Germanic_Way",
+			"Latish_tung",
+		]
+
+		$(handles).each(function(i, handle) {
+			promises.push(new Promise(function(resolve) {
+				$.post('/api/', {
+					mode: 'read',
+					handle: 'http://anglish.wikia.com/wiki/'+handle
+				}, function(d) {
+					console.log(handle)
+					$(document.body).append($(d).find('#mw-content-text'))
+					resolve()
+				}, 'html')
+			}))
+		})
+
+		Promise.all(promises).then(function() {
+			cleanup()
+		})
+
+	})
+	</script>
+	</head>
+	<body>
+	</body>
+</html>
